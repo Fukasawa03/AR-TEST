@@ -1,50 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AR Viewer</title>
-</head>
-<body>
-
-<a id="iosAR" rel="ar" href="model.usdz"></a>
 
 <script>
-window.onload = function() {
+function loadGA() {
+  if (window.gaLoaded) return;
+  window.gaLoaded = true;
 
-  // ---- Analyticsを0.3秒先に実行 ----
-  var s = document.createElement('script');
-  s.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX";
-  s.async = true;
-  document.head.appendChild(s);
+  const s1 = document.createElement('script');
+  s1.async = true;
+  s1.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX";
+  document.head.appendChild(s1);
 
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXX');
+  const s2 = document.createElement('script');
+  s2.innerHTML = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  `;
+  document.head.appendChild(s2);
+}
 
-  setTimeout(function(){
+function trackEvent(os) {
+  if (typeof gtag === 'function') {
+    gtag('event', 'ar_open', {
+      platform: os,
+      work_name: 'work-a'
+    });
+  }
+}
 
-    const ua = navigator.userAgent || navigator.vendor;
+function openAR() {
+  loadGA();
 
-    // iOS
-    if (/iPad|iPhone|iPod/.test(ua)) {
-      document.getElementById('iosAR').click();
-    }
+  const ua = navigator.userAgent || navigator.vendor;
 
-    // Android
-    else if (/android/i.test(ua)) {
-      const sceneUrl =
-        "intent://arvr.google.com/scene-viewer/1.0" +
-        "?file=" + window.location.origin + "/model.glb" +
-        "&mode=ar_only" +
-        "#Intent;scheme=https;package=com.google.ar.core;end;";
-      window.location.href = sceneUrl;
-    }
-
-  }, 300); // 0.3秒待ってAR起動
-};
+  if (/android/i.test(ua)) {
+    trackEvent('android');
+    window.location.href =
+      "intent://arvr.google.com/scene-viewer/1.0?file=https://yourdomain/models/model.glb&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;";
+  } else if (/iPad|iPhone|Macintosh/.test(ua) && 'ontouchend' in document) {
+    trackEvent('ios');
+    window.location.href = "model.usdz";
+  } else {
+    alert("この端末はARに対応していません");
+  }
+}
 </script>
 
+</head>
+<body>
+<button onclick="openAR()">ARで見る</button>
 </body>
 </html>
