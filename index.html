@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AR Viewer</title>
+</head>
+<body>
+
+<a id="iosAR" rel="ar" href="model.usdz"></a>
+
+<script>
+window.onload = function() {
+
+  // ---- Analyticsを0.3秒先に実行 ----
+  var s = document.createElement('script');
+  s.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX";
+  s.async = true;
+  document.head.appendChild(s);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXX');
+
+  setTimeout(function(){
+
+    const ua = navigator.userAgent || navigator.vendor;
+
+    // iOS
+    if (/iPad|iPhone|iPod/.test(ua)) {
+      document.getElementById('iosAR').click();
+    }
+
+    // Android
+    else if (/android/i.test(ua)) {
+      const sceneUrl =
+        "intent://arvr.google.com/scene-viewer/1.0" +
+        "?file=" + window.location.origin + "/model.glb" +
+        "&mode=ar_only" +
+        "#Intent;scheme=https;package=com.google.ar.core;end;";
+      window.location.href = sceneUrl;
+    }
+
+  }, 300); // 0.3秒待ってAR起動
+};
+</script>
+
+</body>
+</html>
