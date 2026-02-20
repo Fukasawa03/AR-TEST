@@ -3,24 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AR Loading</title>
+<title>AR Viewer</title>
 
 <style>
 body{
   margin:0;
-  height:100vh;
+  min-height:100vh;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
   font-family:sans-serif;
   background:#000;
   color:#fff;
+  text-align:center;
+}
+button{
+  padding:15px 25px;
+  margin:10px;
+  font-size:18px;
+  border:none;
+  border-radius:8px;
+  background:#fff;
+  color:#000;
+}
+button:active{
+  opacity:0.7;
+}
+h2{
+  margin-bottom:20px;
 }
 </style>
 
 <script>
-const GA_ID = "G-525219767"; // ←変更
-const WORK_NAME = "卒業式看板オブジェクトBモデル完成版デモsmall.usdz";   // ←変更
+const GA_ID = "G-XXXXXXXXXX"; // ←変更
+const WORK_NAME = "exhibition-2026"; // ←任意
+
+const MODELS = {
+  modelA: {
+    name: "作品A",
+    ios: "models/a.usdz",
+    android: "https://yourdomain/models/a.glb"
+  },
+  modelB: {
+    name: "作品B",
+    ios: "models/b.usdz",
+    android: "https://yourdomain/models/b.glb"
+  },
+  modelC: {
+    name: "作品C",
+    ios: "models/c.usdz",
+    android: "https://yourdomain/models/c.glb"
+  }
+};
 
 function loadGA(){
   if(window.gaLoaded) return;
@@ -41,40 +76,55 @@ function loadGA(){
   document.head.appendChild(s2);
 }
 
-function track(os){
+function track(os, modelName){
   if(typeof gtag === "function"){
-    gtag("event","ar_auto_open",{
+    gtag("event","ar_open",{
       platform: os,
-      work_name: WORK_NAME
+      work_name: WORK_NAME,
+      model: modelName
     });
   }
 }
 
-function openAR(){
+function openAR(modelKey){
+  document.body.innerHTML = "<div>3Dモデルを読み込み中...</div>";
+
   const ua = navigator.userAgent || navigator.vendor;
+  const model = MODELS[modelKey];
 
   if(/android/i.test(ua)){
-    track("android");
+    track("android", model.name);
     window.location.href =
-    "intent://arvr.google.com/scene-viewer/1.0?file=https://yourdomain/models/model.glb&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;";
+    "intent://arvr.google.com/scene-viewer/1.0?file=" + model.android + "&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;";
   }
   else if(/iPad|iPhone|Macintosh/.test(ua) && 'ontouchend' in document){
-    track("ios");
-    window.location.href = "卒業式看板オブジェクトBモデル完成版デモsmall.usdz";
+    track("ios", model.name);
+    window.location.href = model.ios;
   }
   else{
     document.body.innerHTML = "この端末はAR非対応です";
   }
 }
 
+function showMenu(){
+  document.body.innerHTML = "<h2>作品を選択してください</h2>";
+
+  Object.keys(MODELS).forEach(key=>{
+    const btn = document.createElement("button");
+    btn.textContent = MODELS[key].name;
+    btn.onclick = ()=>openAR(key);
+    document.body.appendChild(btn);
+  });
+}
+
 window.addEventListener("load",()=>{
   loadGA();
-  setTimeout(openAR,300); // ←0.3秒
+  showMenu();
 });
 </script>
 
 </head>
 <body>
-<div>3Dモデルを読み込み中...</div>
+<div>読み込み中...</div>
 </body>
 </html>
