@@ -3,55 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AR Viewer</title>
+<title>AR Exhibition</title>
 
 <style>
 body{
   margin:0;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
   font-family:sans-serif;
   background:#000;
   color:#fff;
   text-align:center;
 }
-button{
-  padding:15px 25px;
-  margin:10px;
-  font-size:18px;
-  border:none;
-  border-radius:8px;
-  background:#fff;
-  color:#000;
+
+/* 右下固定ロゴ */
+.corner-logo{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  width:100px;
+  opacity:0.8;
+  z-index:999;
 }
-button:active{
-  opacity:0.7;
+
+/* タイトル部分 */
+header{
+  padding:30px 0 10px 0;
 }
+
 h2{
-  margin-bottom:20px;
+  margin:0 0 30px 0;
+  font-weight:normal;
+}
+
+/* カードグリッド */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:20px;
+  padding:20px;
+  max-width:900px;
+  margin:auto;
+}
+
+/* 各カード */
+.card{
+  background:rgba(255,255,255,0.08);
+  border-radius:16px;
+  overflow:hidden;
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.card:hover{
+  transform:scale(1.05);
+}
+
+.card img{
+  width:100%;
+  height:150px;
+  object-fit:cover;
+}
+
+.card-title{
+  padding:12px;
+  font-size:16px;
 }
 </style>
 
 <script>
 const GA_ID = "G-XXXXXXXXXX"; // ←変更
-const WORK_NAME = "exhibition-2026"; // ←任意
+const WORK_NAME = "school-exhibition-2026";
 
 const MODELS = {
   modelA: {
     name: "作品A",
+    thumb: "thumb-a.jpg",
     ios: "models/a.usdz",
     android: "https://yourdomain/models/a.glb"
   },
   modelB: {
     name: "作品B",
+    thumb: "thumb-b.jpg",
     ios: "models/b.usdz",
     android: "https://yourdomain/models/b.glb"
   },
   modelC: {
     name: "作品C",
+    thumb: "thumb-c.jpg",
     ios: "models/c.usdz",
     android: "https://yourdomain/models/c.glb"
   }
@@ -87,7 +125,7 @@ function track(os, modelName){
 }
 
 function openAR(modelKey){
-  document.body.innerHTML = "<div>3Dモデルを読み込み中...</div>";
+  document.body.innerHTML = "<div style='margin-top:40vh;'>3Dモデルを読み込み中...</div>";
 
   const ua = navigator.userAgent || navigator.vendor;
   const model = MODELS[modelKey];
@@ -107,14 +145,38 @@ function openAR(modelKey){
 }
 
 function showMenu(){
-  document.body.innerHTML = "<h2>作品を選択してください</h2>";
+  const container = document.createElement("div");
+
+  container.innerHTML = `
+    <header>
+      <h2>AR作品展示</h2>
+    </header>
+    <div class="grid" id="grid"></div>
+  `;
+
+  document.body.innerHTML = "";
+  document.body.appendChild(container);
+
+  const grid = document.getElementById("grid");
 
   Object.keys(MODELS).forEach(key=>{
-    const btn = document.createElement("button");
-    btn.textContent = MODELS[key].name;
-    btn.onclick = ()=>openAR(key);
-    document.body.appendChild(btn);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.onclick = ()=>openAR(key);
+
+    card.innerHTML = `
+      <img src="${MODELS[key].thumb}">
+      <div class="card-title">${MODELS[key].name}</div>
+    `;
+
+    grid.appendChild(card);
   });
+
+  // 右下ロゴ追加
+  const logo = document.createElement("img");
+  logo.src = "logo.png"; // ←変更
+  logo.className = "corner-logo";
+  document.body.appendChild(logo);
 }
 
 window.addEventListener("load",()=>{
@@ -125,6 +187,6 @@ window.addEventListener("load",()=>{
 
 </head>
 <body>
-<div>読み込み中...</div>
+読み込み中...
 </body>
 </html>
