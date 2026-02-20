@@ -24,7 +24,6 @@ body{
   z-index:999;
 }
 
-/* タイトル部分 */
 header{
   padding:30px 0 10px 0;
 }
@@ -34,17 +33,17 @@ h2{
   font-weight:normal;
 }
 
-/* カードグリッド */
+/* グリッド */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  grid-template-columns:repeat(2,1fr);
   gap:20px;
   padding:20px;
-  max-width:900px;
+  max-width:600px;
   margin:auto;
 }
 
-/* 各カード */
+/* カード */
 .card{
   background:rgba(255,255,255,0.08);
   border-radius:16px;
@@ -67,6 +66,13 @@ h2{
 .card-title{
   padding:12px;
   font-size:16px;
+}
+
+/* Cを中央配置 */
+.center-card{
+  grid-column:1 / span 2;
+  justify-self:center;
+  width:70%;
 }
 </style>
 
@@ -159,9 +165,14 @@ function showMenu(){
 
   const grid = document.getElementById("grid");
 
-  Object.keys(MODELS).forEach(key=>{
+  ["modelA","modelB","modelC"].forEach(key=>{
     const card = document.createElement("div");
     card.className = "card";
+
+    if(key === "modelC"){
+      card.classList.add("center-card");
+    }
+
     card.onclick = ()=>openAR(key);
 
     card.innerHTML = `
@@ -172,9 +183,8 @@ function showMenu(){
     grid.appendChild(card);
   });
 
-  // 右下ロゴ追加
   const logo = document.createElement("img");
-  logo.src = "logo.png"; // ←変更
+  logo.src = "logo.png";
   logo.className = "corner-logo";
   document.body.appendChild(logo);
 }
